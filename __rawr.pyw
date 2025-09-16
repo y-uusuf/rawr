@@ -33,7 +33,7 @@ except:
     pass
 
 # --- Config ---
-IP_URL = "https://raw.githubusercontent.com/y-uusuf/okok/refs/heads/main/ip.txt"
+IP_URL = "https://raw.githubusercontent.com/y-uusuf/rawr/refs/heads/main/ip.txt"
 PORT = 5000
 FONT_NAME = "Whitney", "Helvetica Neue", "Helvetica", "Arial", "sans-serif"
 FONT_SIZE = 14
@@ -617,4 +617,5 @@ add_message("make sure you don't get caught lol")
 
 threading.Thread(target=connection_manager, daemon=True).start()
 update_typing_indicator()
+
 root.mainloop()
