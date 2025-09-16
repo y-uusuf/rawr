@@ -60,7 +60,7 @@ COLORS = {
 
 # --- Modern Tkinter Setup (root exists before dialog) ---
 root = tk.Tk()
-root.title("Discord-like Chat")
+root.title("careful, you're being watched 0_0")
 root.geometry("800x900")
 root.configure(bg=COLORS['bg_secondary'])
 root.tk.call("tk", "scaling", 1.0)
@@ -617,5 +617,4 @@ add_message("make sure you don't get caught lol")
 
 threading.Thread(target=connection_manager, daemon=True).start()
 update_typing_indicator()
-
 root.mainloop()
