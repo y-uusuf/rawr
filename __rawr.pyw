@@ -60,11 +60,13 @@ COLORS = {
 
 # --- Modern Tkinter Setup (root exists before dialog) ---
 root = tk.Tk()
+root.withdraw()
 root.title("careful, you're being watched 0_0")
 root.geometry("800x900")
 root.configure(bg=COLORS['bg_secondary'])
 root.tk.call("tk", "scaling", 1.0)
 root.overrideredirect(False)
+
 
 # --- Helper: modern button (must exist before get_username uses it) ---
 def create_modern_button(parent, text, color, hover_color, command):
@@ -94,7 +96,7 @@ def create_modern_button(parent, text, color, hover_color, command):
 # --- Username dialog (defined before use) ---
 def get_username():
     dialog = tk.Toplevel(root)
-    dialog.title("Welcome")
+    dialog.title("hey -//-")
     dialog.geometry("400x200")
     dialog.configure(bg=COLORS['bg_secondary'])
     dialog.resizable(False, False)
@@ -106,7 +108,7 @@ def get_username():
     y = (dialog.winfo_screenheight() // 2) - (dialog.winfo_height() // 2)
     dialog.geometry(f"+{x}+{y}")
 
-    tk.Label(dialog, text="Enter your username",
+    tk.Label(dialog, text="what do you wanna be called?",
              bg=COLORS['bg_secondary'], fg=COLORS['text_bright'],
              font=(FONT_NAME[0], 16, "bold")).pack(pady=30)
 
@@ -122,7 +124,7 @@ def get_username():
             result["username"] = entry.get().strip()
             dialog.destroy()
 
-    ok_btn = create_modern_button(dialog, "Join Chat", COLORS['success'], "#2d7d43", on_ok)
+    ok_btn = create_modern_button(dialog, "join up.", COLORS['success'], "#2d7d43", on_ok)
     ok_btn.pack(pady=20)
 
     entry.bind("<Return>", lambda e: on_ok())
@@ -138,6 +140,7 @@ while not username:
     if not username:
         root.quit()
         exit()
+root.deiconify()
 
 # --- Persistent references and state (defined early) ---
 image_refs = []
@@ -215,7 +218,7 @@ input_field.pack(side=tk.LEFT, fill=tk.X, expand=True, padx=(0, 10), pady=5, ipa
 send_button = create_modern_button(input_frame, "Send", COLORS['accent'], COLORS['accent_hover'], None)
 send_button.pack(side=tk.RIGHT, padx=(5, 0))
 
-image_button = create_modern_button(input_frame, "📎", COLORS['input_bg'], COLORS['bg_secondary'], None)
+image_button = create_modern_button(input_frame, "🔎", COLORS['input_bg'], COLORS['bg_secondary'], None)
 image_button.pack(side=tk.RIGHT, padx=(5, 0))
 
 # --- Animation helpers ---
@@ -534,6 +537,15 @@ def receive_messages():
                                     root.after(0, lambda u=user: add_typing_user(u))
                         except Exception as e:
                             print(f"Error processing typing: {e}")
+                    
+                    # Handle server messages (join/leave notifications)
+                    elif line_str.startswith("[Server]"):
+                        root.after(0, lambda msg=line_str: add_message(msg))
+                    
+                    # Handle any other plain text messages that don't have prefixes
+                    else:
+                        if line_str.strip():  # Only if not empty
+                            root.after(0, lambda msg=line_str: add_message(msg))
                 else:
                     break
 
@@ -554,6 +566,11 @@ def connect_to_server(ip, port):
         client.connect((ip, port))
         connected = True
         add_message(f"[Connected] to {ip}:{port}")
+        
+        # Send join notification to server
+        join_message = f"USER_JOINED::{username}\n"
+        client.sendall(join_message.encode('utf-8'))
+        
         threading.Thread(target=receive_messages, daemon=True).start()
         return True
     except Exception as e:
